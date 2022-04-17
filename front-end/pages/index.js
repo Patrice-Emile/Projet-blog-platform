@@ -9,7 +9,7 @@ const IndexPage = () => {
 
   const [allPosts, setAllPosts] = useState(null);
   useEffect(() => {
-    if (user) {
+    if (user && user.role !== "READER") {
       getDataAPI({
         url: "http://localhost:3000/posts-sort-for-user-connected",
         headers: { authentication: user.token },
@@ -29,29 +29,32 @@ const IndexPage = () => {
 
   return (
     <DisplayerPage>
-      <div className="listpost">
-        <h2>Les posts </h2>
+      <div className="listPost">
+        <h2>All the posts</h2>
 
+        {postsSave && <h3>My posts</h3>}
         {postsSave &&
           postsSave.map((post) => (
             <Link
-              key={"/posts/" + post.id}
+              key={post.id}
               href={{
                 pathname: "/posts/" + post.id + "/edit-post",
                 query: { id_post: post.id },
               }}
             >
               <Post
-                className="post"
                 key={post.id}
                 title={post.save_title}
                 content={post.save_content}
                 author={post.author}
                 created_at={post.created_at}
                 updated_at={post.updated_at}
+                className={"post"}
               />
             </Link>
           ))}
+        {postsSave && <h3>Others posts</h3>}
+
         {otherPosts &&
           otherPosts.map((post) => (
             <Link key={"/posts/" + post.id} href={"/posts/" + post.id}>

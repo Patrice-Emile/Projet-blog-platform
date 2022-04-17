@@ -20,14 +20,12 @@ export const AppContextProvider = (props) => {
 
   useEffect(() => {
     const data = localStorage.getItem("user");
-    console.log("data : ", data);
     if (!data) {
       setLoaded(true);
       return;
     }
 
     const userData = JSON.parse(data);
-    console.log("userData : ", userData);
 
     setUser(userData);
 
@@ -54,10 +52,7 @@ export const AppContextProvider = (props) => {
   const postDataAPI = async (options, setUserData = false) => {
     const { url, data, headers } = options;
 
-    // console.log("url : ", url);
-    // console.log("data : ", data);
     return axios.post(url, data, { headers: headers }).then((res) => {
-      console.log("res.data : ", res.data);
       setErrorOrSuccess(res.data, setUserData);
     });
   };
@@ -78,7 +73,6 @@ export const AppContextProvider = (props) => {
       .then((res) => setErrorOrSuccess(res.data, false));
   };
   const setErrorOrSuccess = (data, setUserData) => {
-    console.log(data);
     if (!data.errors) {
       if (setUserData) {
         saveUser(data);

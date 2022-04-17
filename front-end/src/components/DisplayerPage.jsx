@@ -6,9 +6,9 @@ const DisplayerPage = (props) => {
 
   return (
     <div {...otherProps}>
-      <Header children={"Blog-platform"} className="header" />
+      <Header children={"Blog de Vinci"} className="header" />
       <main>{children}</main>
-      <Footer children={"SUP 2021"} className="footer" />
+      <Footer children={"CATTIER Patrice-Emile 2022"} />
     </div>
   );
 };

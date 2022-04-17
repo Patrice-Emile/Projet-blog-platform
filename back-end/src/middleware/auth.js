@@ -10,15 +10,11 @@ const auth = async (req, res, next) => {
   } = req;
 
   try {
-    console.log("authentication : ", authentication);
-    // console.log("req.params : ", req.params);
-    // console.log("req.body : ", req.body);
     const {
       payload: {
         user: { id, email, name },
       },
     } = jsonwebtoken.verify(authentication, process.env.JWT_SECRET);
-    // console.log("id : ", id, "\nemail : ", email, "\nname : ", name);
 
     const user = await UsersModel.query()
       .select("users.id", "r.name as role", "users.name", "email", "active")
@@ -31,7 +27,6 @@ const auth = async (req, res, next) => {
       return;
     }
 
-    // console.log("path", req.route.path);
     req.user = user;
 
     next();

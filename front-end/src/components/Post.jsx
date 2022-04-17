@@ -3,7 +3,6 @@ import formattedDate from "../functions/formattedDate";
 const Post = (props) => {
   const { id, title, content, author, created_at, updated_at, ...otherProps } =
     props;
-  // console.log(id,  title, author, created_at, updated_at);
   return (
     <div {...otherProps} id-item={id}>
       <h3>{title}</h3>

@@ -23,8 +23,6 @@ const FormComment = (props) => {
 
   const handleSubmitComment = useCallback(
     (values, { setSubmitting }) => {
-      console.log(values);
-      console.log(error);
       setError(null);
 
       if (!values.content) {
@@ -62,7 +60,6 @@ const FormComment = (props) => {
   }, [deleteDataAPI]);
   useEffect(() => {
     if (error) setLoadError(true);
-    // console.log(result);
   });
   return (
     <>
@@ -74,14 +71,18 @@ const FormComment = (props) => {
         onSubmit={handleSubmitComment}
       >
         <Form {...otherProps}>
-          <div>
+          <div className="divbtn">
             <h4>
               By <b>{author}</b>
             </h4>
             {addComment ? null : (
               <>
-                <button onClick={handleToggleUpdateComment}>Back</button>
-                <button onClick={handleDeleteComment}>Delete</button>
+                <button className="btnBack" onClick={handleToggleUpdateComment}>
+                  Back
+                </button>
+                <button className="btnDel" onClick={handleDeleteComment}>
+                  Delete
+                </button>
               </>
             )}
           </div>

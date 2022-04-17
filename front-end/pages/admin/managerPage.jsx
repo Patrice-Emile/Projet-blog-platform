@@ -20,7 +20,7 @@ const AdminPage = (props) => {
     <DisplayerPage>
       {user && (
         <>
-          <h1>Manage your platform !</h1>
+          <h2>Manage your platform's users</h2>
           <ListUsers />
         </>
       )}

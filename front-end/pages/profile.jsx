@@ -6,7 +6,6 @@ import Router from "next/router";
 
 const ProfilePage = () => {
   const { user } = useContext(AppContext);
-  console.log(user);
   useEffect(() => {
     if (user === null) {
       Router.push("/");
@@ -19,6 +18,7 @@ const ProfilePage = () => {
       <div>
         {user && (
           <FormProfile
+            className="formPost"
             key={user.id}
             id={user.id}
             name={user.name}

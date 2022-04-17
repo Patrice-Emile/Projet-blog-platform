@@ -23,9 +23,6 @@ const contentsRoutes = ({ app }) => {
     }
 
     try {
-      console.log("req.body : ", req.body);
-      // console.log("req.user", req.user);
-
       await yupSchema.validate(req.body, {
         abortEarly: false,
       });
@@ -100,15 +97,12 @@ const contentsRoutes = ({ app }) => {
         return;
       }
       try {
-        // console.log("req.body : ", req.body);
-        // console.log("req.user", req.user);
         let updatePost = false;
         let deletePost = false;
 
         const item = await postModel
           .query()
           .findOne({ id_user: id, id: id_post });
-        console.log("item : ", item);
 
         if (item) {
           updatePost = true;
@@ -137,7 +131,6 @@ const contentsRoutes = ({ app }) => {
 
       try {
         await yupSchema.validate({ id: id_post }, { abortEarly: false });
-        // console.log(id);
         const post = await postModel
           .query()
           .select(
@@ -152,7 +145,6 @@ const contentsRoutes = ({ app }) => {
           .where("is_published", true)
           .where("post.deleted_at", null)
           .findOne({ "post.id": id_post });
-        // console.log(post);
         if (!post) {
           res.send({ errors: [errorMessages.postNotFound] });
           return;
@@ -170,7 +162,6 @@ const contentsRoutes = ({ app }) => {
           .where({ "comment.id_post": id_post })
           .where({ "comment.id_user": id })
           .where("comment.deleted_at", null);
-        // console.log("commentsUser: ", commentsUser);
 
         const comments = await commentModel
           .query()
@@ -185,7 +176,6 @@ const contentsRoutes = ({ app }) => {
           .where({ "comment.id_post": id_post })
           .where("comment.id_user", "<>", id)
           .where("comment.deleted_at", null);
-        // console.log("comments: ", comments);
 
         const item = {
           post,
@@ -215,7 +205,6 @@ const contentsRoutes = ({ app }) => {
       .innerJoin("users as u", "post.id_user", "u.id")
       .where("is_published", true)
       .where("post.deleted_at", null);
-    // console.log(item);
 
     if (!item.length) {
       res.send({ errors: [errorMessages.noPost] });
@@ -244,7 +233,6 @@ const contentsRoutes = ({ app }) => {
       .innerJoin("users as u", "post.id_user", "u.id")
       .where({ "u.id": id })
       .where("post.deleted_at", null);
-    // console.log(item);
 
     const otherPosts = await postModel
       .query()
@@ -260,7 +248,6 @@ const contentsRoutes = ({ app }) => {
       .where("is_published", true)
       .where("u.id ", "<>", id)
       .where("post.deleted_at", null);
-    // console.log(item);
 
     res.send({ postsSave, otherPosts });
   });
@@ -273,14 +260,12 @@ const contentsRoutes = ({ app }) => {
     } = req;
     try {
       await yupSchema.validate({ id, id: id_post }, { abortEarly: false });
-      // console.log(id);
       const post = await postModel
         .query()
         .select("save_title", "save_content")
         .innerJoin("users as u", "post.id_user", "u.id")
         .where("post.deleted_at", null)
         .findOne({ "post.id": id_post });
-      // console.log(post);
       if (!post) {
         res.send({ errors: [errorMessages.postNotFound] });
         return;
@@ -300,7 +285,6 @@ const contentsRoutes = ({ app }) => {
     } = req;
     try {
       await yupSchema.validate({ id }, { abortEarly: false });
-      // console.log(id);
       const post = await postModel
         .query()
         .select(
@@ -315,7 +299,6 @@ const contentsRoutes = ({ app }) => {
         .where("is_published", true)
         .where("post.deleted_at", null)
         .findOne({ "post.id": id });
-      // console.log(post);
       if (!post) {
         res.send({ errors: [errorMessages.postNotFound] });
         return;
@@ -332,7 +315,6 @@ const contentsRoutes = ({ app }) => {
         .innerJoin("users as u", "comment.id_user", "u.id")
         .where({ "comment.id_post": id })
         .where("comment.deleted_at", null);
-      // console.log(comments);
 
       const item = {
         post,
@@ -438,7 +420,6 @@ const contentsRoutes = ({ app }) => {
       content,
       created_at: new Date(Date.now()).toUTCString(),
     });
-    console.log(item);
     if (item.length) {
       res.send({ errors: [errorMessages.cannotInsertPost] });
       return;
@@ -457,8 +438,6 @@ const contentsRoutes = ({ app }) => {
       body: { content },
       user: { id, role, email, name },
     } = req;
-    // console.log("id_post : ", id_post);
-    // console.log("id_comment : ", id_comment);
     try {
       await yupSchema.validate(
         {
@@ -469,7 +448,6 @@ const contentsRoutes = ({ app }) => {
         }
       );
       const post = await postModel.query().findById(id_post);
-      // console.log("post : ", post);
 
       if (!post) {
         res.send({ errors: [errorMessages.postNotFound] });
@@ -479,7 +457,6 @@ const contentsRoutes = ({ app }) => {
       const comment = await commentModel
         .query()
         .findOne({ id: id_comment, id_user: id, id_post });
-      // console.log("comment : ", comment);
 
       if (!comment) {
         res.send({ errors: [errorMessages.commentNotFound] });
@@ -514,7 +491,6 @@ const contentsRoutes = ({ app }) => {
       res.send({ errors: [errorMessages.commentNotFound] });
       return;
     }
-    // console.log("comment : ", item);
     await commentModel.query().deleteById(id_comment);
     res.send("[" + id_comment + "] " + errorMessages.commentDeleted);
   });

@@ -16,7 +16,6 @@ const FormProfile = (props) => {
   const handleSubmitProfilePage = (values, { setSubmitting }) => {
     setError(null);
     setSuccess(null);
-    console.log(values);
 
     if (values.password !== values.confirmPassword) {
       setError("Your password and your confirm password aren't the same !");
@@ -37,8 +36,6 @@ const FormProfile = (props) => {
     );
 
     setSubmitting(true);
-
-    console.log(user);
   };
 
   useEffect(() => {
@@ -57,7 +54,7 @@ const FormProfile = (props) => {
         validationSchema={yupSchema}
         onSubmit={handleSubmitProfilePage}
       >
-        <Form>
+        <Form {...otherProps}>
           <label>Role : {role}</label>
 
           <TextInput label="Name" name="name" type="text" />

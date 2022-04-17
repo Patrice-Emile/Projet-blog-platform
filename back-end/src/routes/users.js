@@ -22,7 +22,6 @@ const usersRoutes = ({ app }) => {
 
     const item = await usersModel.query().where({ id: id_user });
     // const item = await usersModel.query();
-    console.log("item : ", item);
 
     if (!item.length) {
       res.send(errorMessages.userNotFound);
@@ -34,13 +33,11 @@ const usersRoutes = ({ app }) => {
       res.send(errorMessages.roleNotFound);
       return;
     }
-    console.log("newRole : ", newRole);
 
     const updatedItem = await usersModel.query().patchAndFetchById(id_user, {
       id_role: newRole.id,
       active: active,
     });
-    console.log("updatedItem : ", updatedItem);
 
     res.send(updatedItem);
   });
@@ -70,7 +67,6 @@ const usersRoutes = ({ app }) => {
       .where("deleted_at", null)
       .where("users.id", "<>", id);
     // const item = await usersModel.query();
-    // console.log(item);
 
     if (!item.length) {
       res.send(errorMessages.noUsers);
@@ -100,15 +96,15 @@ const usersRoutes = ({ app }) => {
           abortEarly: false,
         }
       );
+
       const item = await usersModel.query().where({ id: id_user });
-      // const item = await usersModel.query();
-      console.log(item);
+
       if (!item.length) {
         res.send(errorMessages.userNotFound);
         return;
       }
       const [hash, salt] = hashPassword(new_password);
-      console.log(new_email, new_name);
+
       const updatedItem = await usersModel.query().patchAndFetchById(id_user, {
         email: new_email,
         name: new_name,
@@ -116,6 +112,7 @@ const usersRoutes = ({ app }) => {
         password_salt: salt,
         updated_at: new Date(Date.now()).toUTCString(),
       });
+
       res.send({
         id: updatedItem.id,
         email: updatedItem.email,

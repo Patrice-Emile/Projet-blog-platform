@@ -13,8 +13,6 @@ const FormConnexion = (props) => {
 
   const handleSubmitPortal = useCallback(
     (values, { setSubmitting }) => {
-      console.log(values);
-      console.log(error);
       setSuccess(null);
       if (isSignUpPage) {
         if (values.password !== values.confirmPassword) {

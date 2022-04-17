@@ -14,7 +14,6 @@ const sessionRoutes = ({ app }) => {
     const {
       body: { email, password },
     } = req;
-    // console.log(req.body);
     try {
       await yupSchema.validate(
         { email: email, password: password },
@@ -28,17 +27,13 @@ const sessionRoutes = ({ app }) => {
         .select("id")
         .where({ name: roles.READER })
         .first();
-      // console.log("userRole : ", userRole);
       if (!userRole.id) {
         res.send({ errors: [errorMessages.roleNotFound] });
       }
 
       const user = await usersModel.query().where({ email });
-      console.log("user : ", user);
 
       if (user.length) {
-        console.log("user length : ", user.length);
-
         res.send({ errors: [errorMessages.invalidLogin] });
         return;
       }
@@ -53,10 +48,6 @@ const sessionRoutes = ({ app }) => {
         password_salt: salt,
       });
 
-      console.log("newUser : ", newUser);
-
-      // console.log(newUser);
-
       const jwt = jsonwebtoken.sign(
         {
           payload: {
@@ -70,8 +61,6 @@ const sessionRoutes = ({ app }) => {
         process.env.JWT_SECRET,
         { expiresIn: "2 days" }
       );
-      // console.log("jwt: " + jwt);
-      // console.log("jwt", jwt);
       res.send({
         id: newUser.id,
         email: newUser.email,
@@ -94,9 +83,6 @@ const sessionRoutes = ({ app }) => {
 
     try {
       const user = await usersModel.query().findOne({ email });
-      console.log(user);
-      // console.log(user.password_hash);
-      // console.log(user.password_salt);
 
       if (!user) {
         res.send({ errors: [errorMessages.invalidLogin] });
@@ -104,10 +90,6 @@ const sessionRoutes = ({ app }) => {
       }
 
       const [hash] = hashPassword(password, user.password_salt);
-
-      // console.log("hash : ", hash);
-      // console.log("u.hash : ", user.password_hash);
-      // console.log("u.salt : ", user.password_salt);
 
       if (hash !== user.password_hash) {
         res.send({ errors: [errorMessages.invalidLogin] });
@@ -123,8 +105,6 @@ const sessionRoutes = ({ app }) => {
         .innerJoin("role as r", "users.id_role", "r.id")
         .where("deleted_at", null)
         .findById(user.id);
-
-      console.log(role);
 
       if (!role) {
         res.send(errorMessages.userNotFound);
@@ -144,7 +124,6 @@ const sessionRoutes = ({ app }) => {
           expiresIn: "2 days",
         }
       );
-      console.log(role.name);
       res.json({
         id: user.id,
         email: user.email,

@@ -15,7 +15,11 @@ const PostsPage = () => {
 
   return (
     <DisplayerPage>
-      <div>{user && <FormPost author={user.name} addPost={true} />}</div>
+      <>
+        {user && (
+          <FormPost className="formPost" author={user.name} addPost={true} />
+        )}
+      </>
     </DisplayerPage>
   );
 };

@@ -32,7 +32,6 @@ const FormPost = (props) => {
 
   const handlePublishPost = useCallback(() => {
     setError(null);
-    console.log(content, title);
     if (!content || !title) {
       setError("Post content or title must be not empty.");
       return;
@@ -115,7 +114,6 @@ const FormPost = (props) => {
 
   useEffect(() => {
     if (error) setLoadError(true);
-    // console.log(result);
     if (!post) {
       return "Landing...";
     }
@@ -135,17 +133,19 @@ const FormPost = (props) => {
         validationSchema={yupSchema}
       >
         <Form {...otherProps}>
-          <div>
+          <div className="divbtn">
             <h4>
               By <b>{author}</b>
             </h4>
             {addPost ? null : (
-              <>
+              <div>
+                <button className="btnDel" onClick={handleDeletePost}>
+                  Delete
+                </button>
                 <Link href={id_post ? "/" : "/posts/" + id}>
-                  <button>Back</button>
+                  <button className="btnBack">Cancel</button>
                 </Link>
-                <button onClick={handleDeletePost}>Delete</button>
-              </>
+              </div>
             )}
           </div>
           <TextInput
@@ -163,12 +163,18 @@ const FormPost = (props) => {
           />
 
           {loadError && error && <div className="error">{error}</div>}
-          <button type="submit" onClick={handlePublishPost} className="submit">
-            Publish
-          </button>
-          <button type="submit" onClick={handleSavePost} className="submit">
-            Save
-          </button>
+          <div className="divbtn">
+            <button
+              type="submit"
+              onClick={handlePublishPost}
+              className="btnPublish"
+            >
+              Publish
+            </button>
+            <button type="submit" onClick={handleSavePost} className="btnSave">
+              Save
+            </button>
+          </div>
         </Form>
       </Formik>
     </>

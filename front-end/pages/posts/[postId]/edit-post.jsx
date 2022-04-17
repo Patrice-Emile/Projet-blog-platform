@@ -21,7 +21,11 @@ const EditPostPage = (props) => {
 
   return (
     <DisplayerPage>
-      <div>{user && <FormPost key={id} author={user.name} id={id} />}</div>
+      <div>
+        {user && (
+          <FormPost className="formPost" key={id} author={user.name} id={id} />
+        )}
+      </div>
     </DisplayerPage>
   );
 };

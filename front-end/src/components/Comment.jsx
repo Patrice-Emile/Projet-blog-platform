@@ -42,7 +42,7 @@ const Comment = (props) => {
         </>
       ) : (
         <div {...otherProps} id-item-comment={id}>
-          <div>
+          <div className="divbtn">
             <h4>
               By <b>{author}</b>, on {formattedDate(new Date(created_at))}
               {updated_at ? (
@@ -50,13 +50,17 @@ const Comment = (props) => {
               ) : null}
             </h4>
             {allowEdit ? (
-              <button onClick={handleToggleUpdateComment}>Edit</button>
+              <button className="btnEdit" onClick={handleToggleUpdateComment}>
+                Edit
+              </button>
             ) : null}
             {allowDelete ? (
-              <button onClick={handleDeleteComment}>Delete</button>
+              <button className="btnDel" onClick={handleDeleteComment}>
+                Delete
+              </button>
             ) : null}
           </div>
-          <div>{content}</div>
+          <div className="content">{content}</div>
         </div>
       )}
     </>

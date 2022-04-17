@@ -31,14 +31,17 @@ const Content = (props) => {
 
   return (
     <div {...otherProps}>
-      <div className="">
-        <h3>{title}</h3>
-        <h4>
-          By <b>{author}</b>, on {formattedDate(new Date(created_at))}
-          {updated_at ? (
-            <>, mis à jour le {formattedDate(new Date(updated_at))}</>
-          ) : null}
-        </h4>
+      <div className="divbtn">
+        <div>
+          <h3>{title}</h3>
+          <h4>
+            By <b className="author">{author}</b>, on{" "}
+            {formattedDate(new Date(created_at))}
+            {updated_at ? (
+              <>, mis à jour le {formattedDate(new Date(updated_at))}</>
+            ) : null}
+          </h4>
+        </div>
         {updatePost ? (
           <Link
             href={{
@@ -46,12 +49,14 @@ const Content = (props) => {
               query: { id, title, content },
             }}
           >
-            <button>Edit Post</button>
+            <button className="btnEdit">Edit Post</button>
           </Link>
         ) : null}
         {deletePost ? (
           <>
-            <button onClick={handleDeletePost}>Delete Post</button>
+            <button className="btnDel" onClick={handleDeletePost}>
+              Delete Post
+            </button>
           </>
         ) : null}
       </div>

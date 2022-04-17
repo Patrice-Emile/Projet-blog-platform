@@ -23,7 +23,6 @@ const User = (props) => {
 
   const handleSubmitUser = (values, { setSubmitting }) => {
     setError(null);
-    console.log("values : ", values);
     putDataAPI({
       url: "http://localhost:3000/change-user-role-activity/" + id,
       data: {

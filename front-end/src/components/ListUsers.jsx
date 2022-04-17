@@ -10,7 +10,6 @@ const ListUsers = (props) => {
 
   const [allUsers, setAllUsers] = useState(null);
 
-  // console.log(user);
   useEffect(() => {
     if (!user) {
       return;
@@ -24,12 +23,9 @@ const ListUsers = (props) => {
       url: "http://localhost:3000/users",
       headers: { authentication: user.token },
     }).then((data) => {
-      console.log(data);
       setAllUsers(data);
-      console.log(allUsers);
     });
   }, []);
-  console.log("allUsers : ", allUsers);
   return (
     <div {...otherProps}>
       {allUsers &&

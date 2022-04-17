@@ -35,6 +35,11 @@ Directement dans le dossier back-end :
 
 Le port d'écoute est 3000, et vous pouvez, depuis votre navigateur déjà accéder à l'api 'http://localhost:3000/posts'
 
+- Pour information, des utilisateurs seront déjà disponible
+- Leurs mot de passe par défaut sera toujours "test" à chaque que vous redémarrer le server back-end
+- Une fois la partie back-end lancé, dans le fichier back-end/server.js
+- Vous pouvez commenter de la ligne 25 à 36 pour pallier ce problème.
+
 # Lancer la partie front-end :
 
 Directement dans le dossier back-end :
@@ -43,4 +48,4 @@ Directement dans le dossier back-end :
   npm i
   - Sous Windows / Mac / Linux : npm run dev
 
-Le projet vous indiquera le pour d'écoute ( trying 3001 ), ensuite, vous pourrez depuis votre navigateur accéder à l'application depuis 'http://localhost:3001'
+Le projet vous indiquera le port d'écoute ( trying 3001 ), ensuite, vous pourrez depuis votre navigateur accéder à l'application depuis 'http://localhost:3001'
