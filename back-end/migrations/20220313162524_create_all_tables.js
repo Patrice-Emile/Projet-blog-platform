@@ -67,9 +67,13 @@ export const up = async (knex) => {
     table.increments("id").primary().notNullable();
     table.integer("id_user").notNullable();
 
-    table.string("title").notNullable();
-    table.text("content").notNullable();
-    table.boolean("is_published").notNullable().defaultTo(1);
+    table.string("title").nullable();
+    table.text("save_title").nullable();
+
+    table.text("content").nullable();
+    table.text("save_content").nullable();
+
+    table.boolean("is_published").notNullable().defaultTo(0);
 
     table.date("created_at").defaultTo(new Date(Date.now()).toUTCString());
     table.date("updated_at").nullable();
@@ -84,6 +88,7 @@ export const up = async (knex) => {
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 
       created_at: new Date(Date.now()).toUTCString(),
+      is_published: 1,
     },
     {
       id: 2,
@@ -94,6 +99,7 @@ export const up = async (knex) => {
 
       created_at: new Date(Date.now()).toUTCString(),
       updated_at: new Date(Date.now()).toUTCString(),
+      is_published: 1,
     },
   ]);
   // COMMENT

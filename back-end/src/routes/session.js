@@ -3,6 +3,7 @@ import roleModel from "../models/Role.js";
 import hashPassword from "../hashPassword.js";
 import auth from "../middleware/auth.js";
 import errorMessages from "../util/errorMessages.js";
+import roles from "../util/roles.js";
 import yupSchema from "../util/yupSchema.js";
 import jsonwebtoken from "jsonwebtoken";
 
@@ -13,14 +14,8 @@ const sessionRoutes = ({ app }) => {
     const {
       body: { email, password },
     } = req;
-
-    const basicRole = "READER";
-
+    // console.log(req.body);
     try {
-      const createUser = {
-        email,
-        password,
-      };
       await yupSchema.validate(
         { email: email, password: password },
         {
@@ -31,31 +26,34 @@ const sessionRoutes = ({ app }) => {
       const userRole = await roleModel
         .query()
         .select("id")
-        .where({ name: basicRole })
+        .where({ name: roles.READER })
         .first();
-
+      // console.log("userRole : ", userRole);
       if (!userRole.id) {
-        const error = new Error(errorMessages.roleNotFound);
-        res.status(403);
-        throw error;
+        res.send({ errors: [errorMessages.roleNotFound] });
       }
 
       const user = await usersModel.query().where({ email });
+      console.log("user : ", user);
+
       if (user.length) {
-        const error = new Error(errorMessages.emailInUse);
-        res.status(403);
-        throw error;
+        console.log("user length : ", user.length);
+
+        res.send({ errors: [errorMessages.invalidLogin] });
+        return;
       }
 
       const [hash, salt] = hashPassword(password);
 
-      const newUser = await usersModel.query().insert({
+      const newUser = await usersModel.query().insertAndFetch({
         email: email,
-        name: "The best " + basicRole,
+        name: "The best " + roles.READER,
         id_role: userRole.id,
         password_hash: hash,
         password_salt: salt,
       });
+
+      console.log("newUser : ", newUser);
 
       // console.log(newUser);
 
@@ -73,9 +71,17 @@ const sessionRoutes = ({ app }) => {
         { expiresIn: "2 days" }
       );
       // console.log("jwt: " + jwt);
-      res.send(jwt);
+      // console.log("jwt", jwt);
+      res.send({
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        role: roles.READER,
+        created_at: newUser.created_at,
+        token: jwt,
+      });
     } catch (error) {
-      res.send("error: " + error);
+      res.send(error);
     }
   });
 
@@ -88,14 +94,13 @@ const sessionRoutes = ({ app }) => {
 
     try {
       const user = await usersModel.query().findOne({ email });
-      // console.log(user);
+      console.log(user);
       // console.log(user.password_hash);
       // console.log(user.password_salt);
 
       if (!user) {
-        const error = new Error(errorMessages.invalidLogin);
-        res.status(403);
-        throw error;
+        res.send({ errors: [errorMessages.invalidLogin] });
+        return;
       }
 
       const [hash] = hashPassword(password, user.password_salt);
@@ -105,9 +110,25 @@ const sessionRoutes = ({ app }) => {
       // console.log("u.salt : ", user.password_salt);
 
       if (hash !== user.password_hash) {
-        const error = new Error(errorMessages.invalidLogin);
-        res.status(403);
-        throw error;
+        res.send({ errors: [errorMessages.invalidLogin] });
+        return;
+      }
+      if (!user.active) {
+        res.send({ errors: [errorMessages.suspendAccount] });
+        return;
+      }
+      const role = await usersModel
+        .query()
+        .select("r.name")
+        .innerJoin("role as r", "users.id_role", "r.id")
+        .where("deleted_at", null)
+        .findById(user.id);
+
+      console.log(role);
+
+      if (!role) {
+        res.send(errorMessages.userNotFound);
+        return;
       }
 
       const payload = {
@@ -116,16 +137,25 @@ const sessionRoutes = ({ app }) => {
         name: user.name,
       };
 
-      const token = await jsonwebtoken.sign(
+      const jwt = await jsonwebtoken.sign(
         { payload: { user: payload } },
         process.env.JWT_SECRET,
         {
           expiresIn: "2 days",
         }
       );
-      res.json(token);
+      console.log(role.name);
+      res.json({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: role.name,
+        created_at: user.created_at,
+
+        token: jwt,
+      });
     } catch (error) {
-      next(error);
+      res.send(error);
     }
   });
 

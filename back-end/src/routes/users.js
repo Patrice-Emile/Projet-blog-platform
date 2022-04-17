@@ -7,26 +7,12 @@ import yupSchema from "../util/yupSchema.js";
 import roles from "../util/roles.js";
 
 const usersRoutes = ({ app }) => {
-  // READ ALL USERS
-  // curl -X GET localhost:3000/users
-
-  app.get("/role", auth, async (req, res) => {
-    const item = await roleModel.query().select("id", "name");
-    // const item = await usersModel.query();
-    // console.log(item);
-
-    if (!item.length) {
-      res.send(errorMessages.roleNotFound);
-      return;
-    }
-    res.send(item);
-  });
-  // UPDATE ONE ROLE
-  // curl -X PUT localhost:3000/users/2 -H 'Content-Type: application/json' -d '{"email":"tata@tata.com","password":"123456Az$"}'
-  app.put("/role/:id_user", auth, async (req, res) => {
+  // UPDATE USER ROLE
+  // curl -X PUT localhost:3000/roles/2 -H 'Content-Type: application/json' -d '{"email":"tata@tata.com","password":"123456Az$"}'
+  app.put("/change-user-role-activity/:id_user", auth, async (req, res) => {
     const {
       params: { id_user },
-      body: { new_role },
+      body: { new_role, active },
       user: { id, role, email, name },
     } = req;
     if (role !== roles.ADMIN) {
@@ -34,26 +20,41 @@ const usersRoutes = ({ app }) => {
       return;
     }
 
-    const item = await usersModel.query().where({ id_user });
+    const item = await usersModel.query().where({ id: id_user });
     // const item = await usersModel.query();
+    console.log("item : ", item);
+
     if (!item.length) {
       res.send(errorMessages.userNotFound);
       return;
     }
-    const newRole = await roleModel.query().where({ name: new_role });
+    const newRole = await roleModel.query().findOne({ name: new_role });
 
-    if (!newRole.length) {
+    if (!newRole) {
       res.send(errorMessages.roleNotFound);
       return;
     }
+    console.log("newRole : ", newRole);
 
     const updatedItem = await usersModel.query().patchAndFetchById(id_user, {
       id_role: newRole.id,
+      active: active,
     });
+    console.log("updatedItem : ", updatedItem);
+
     res.send(updatedItem);
   });
 
+  // READ ALL USERS
+  // curl -X GET localhost:3000/users
   app.get("/users", auth, async (req, res) => {
+    const {
+      user: { id, role, email, name },
+    } = req;
+    if (role !== roles.ADMIN) {
+      res.send(errorMessages.cannotAllow);
+      return;
+    }
     const item = await usersModel
       .query()
       .select(
@@ -66,7 +67,8 @@ const usersRoutes = ({ app }) => {
         "updated_at"
       )
       .innerJoin("role as r", "users.id_role", "r.id")
-      .where("deleted_at", null);
+      .where("deleted_at", null)
+      .where("users.id", "<>", id);
     // const item = await usersModel.query();
     // console.log(item);
 
@@ -77,71 +79,75 @@ const usersRoutes = ({ app }) => {
     res.send(item);
   });
 
-  // READ ONE USER
-  // curl -X GET localhost:3000/users/1
-  app.get("/users/:id", auth, async (req, res) => {
-    const {
-      params: { id },
-    } = req;
-    const item = await usersModel.query().where({ id });
-    // const item = await usersModel.query();
-
-    if (!item.length) {
-      res.send(errorMessages.userNotFound);
-      return;
-    }
-    res.send(item);
-  });
-
   // UPDATE ONE USER
   // curl -X PUT localhost:3000/users/2 -H 'Content-Type: application/json' -d '{"email":"tata@tata.com","password":"123456Az$"}'
-  app.put("/users/:id", auth, async (req, res) => {
+  app.put("/users/:id_user", auth, async (req, res) => {
     const {
-      params: { id },
-      body: { name, email, password },
+      params: { id_user },
+      body: { new_name, new_email, new_password, confirmPassword },
+      user: { id, role, email, name },
+      headers: { authentication },
     } = req;
-    const data = {
-      name,
-      email,
-      password,
-    };
-    await yupSchema.validate(data, {
-      abortEarly: false,
-    });
-    const item = await usersModel.query().where({ id });
-    // const item = await usersModel.query();
-    if (!item.length) {
-      res.send(errorMessages.userNotFound);
-      return;
-    }
-    const [hash, salt] = hashPassword(password);
 
-    const updatedItem = await usersModel.query().patchAndFetchById(id, {
-      email: email,
-      name: name,
-      password_hash: hash,
-      password_salt: salt,
-      updated_at: new Date(Date.now()).toUTCString(),
-    });
-    res.send(updatedItem);
+    try {
+      await yupSchema.validate(
+        {
+          name: new_name,
+          email: new_email,
+          password: new_password,
+        },
+        {
+          abortEarly: false,
+        }
+      );
+      const item = await usersModel.query().where({ id: id_user });
+      // const item = await usersModel.query();
+      console.log(item);
+      if (!item.length) {
+        res.send(errorMessages.userNotFound);
+        return;
+      }
+      const [hash, salt] = hashPassword(new_password);
+      console.log(new_email, new_name);
+      const updatedItem = await usersModel.query().patchAndFetchById(id_user, {
+        email: new_email,
+        name: new_name,
+        password_hash: hash,
+        password_salt: salt,
+        updated_at: new Date(Date.now()).toUTCString(),
+      });
+      res.send({
+        id: updatedItem.id,
+        email: updatedItem.email,
+        name: updatedItem.name,
+        role: role,
+        created_at: updatedItem.created_at,
+        token: authentication,
+      });
+    } catch (error) {
+      res.send(error);
+    }
   });
 
   // DELETE ONE USER
   // curl -X DELETE localhost:3000/users/2
-  app.delete("/users/:id", auth, async (req, res) => {
+  app.delete("/users/:id_user", auth, async (req, res) => {
     const {
-      params: { id },
+      params: { id_user },
+      user: { id, role, email, name },
     } = req;
 
-    const item = await usersModel.query().where({ id });
-    const name = await item.name;
+    const item = await usersModel.query().where({ id: id_user });
     if (!item.length) {
       res.send(errorMessages.userNotFound);
       return;
     }
 
-    await usersModel.query().deleteById(id);
-    res.send("[" + id + "] " + errorMessages.userDeleted);
+    await usersModel.query().patchAndFetchById(id_user, {
+      delete_at: new Date(Date.now()).toUTCString(),
+      active: 0,
+    });
+    res.send("[" + id_user + "] " + errorMessages.userDeleted);
   });
 };
 

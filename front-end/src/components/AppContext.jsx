@@ -1,55 +1,102 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
-// console.clear();
+console.clear();
 const AppContext = createContext({});
 
-const save = (postList) => {
-  localStorage.setItem("postlist", JSON.stringify(postList));
+const saveUser = (user) => {
+  localStorage.setItem("user", JSON.stringify(user));
+};
+const deleteUser = (user) => {
+  localStorage.removeItem("user");
 };
 
 export const AppContextProvider = (props) => {
   const [result, setResult] = useState();
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
+  useEffect(() => {
+    const data = localStorage.getItem("user");
+    console.log("data : ", data);
+    if (!data) {
+      setLoaded(true);
+      return;
+    }
+
+    const userData = JSON.parse(data);
+    console.log("userData : ", userData);
+
+    setUser(userData);
+
+    setLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (!loaded) {
+      return;
+    }
+
+    saveUser(user);
+  }, [user]);
   // GET DATA
   const getDataAPI = async (options) => {
-    const { url, params } = options;
+    const { url, params, headers } = options;
     return await axios
       .get(url, {
         params,
+        headers,
       })
       .then((res) => res.data);
   };
   // POST DATA
-  const postDataAPI = async (options) => {
-    const { url, data } = options;
+  const postDataAPI = async (options, setUserData = false) => {
+    const { url, data, headers } = options;
 
-    console.log("url : ", url);
-    console.log("data : ", data);
-    return axios
-      .post(url, {
-        data,
-      })
-      .then((res) => setUser({ user: data, token: res.data }));
+    // console.log("url : ", url);
+    // console.log("data : ", data);
+    return axios.post(url, data, { headers: headers }).then((res) => {
+      console.log("res.data : ", res.data);
+      setErrorOrSuccess(res.data, setUserData);
+    });
   };
 
-  const putDataAPI = async (options) => {
-    const { url, params } = options;
+  const putDataAPI = async (options, setUserData = false) => {
+    const { url, data } = options;
     return axios
-      .put(url, {
-        params,
-      })
-      .then((res) => res.data);
+      .put(url, data, { headers: { authentication: user.token } })
+      .then((res) => setErrorOrSuccess(res.data, setUserData));
   };
   const deleteDataAPI = async (options) => {
-    const { url, params } = options;
+    const { url, params, headers } = options;
     return axios
       .delete(url, {
         params,
+        headers,
       })
-      .then((res) => res.data);
+      .then((res) => setErrorOrSuccess(res.data, false));
+  };
+  const setErrorOrSuccess = (data, setUserData) => {
+    console.log(data);
+    if (!data.errors) {
+      if (setUserData) {
+        saveUser(data);
+        setUser(data);
+        setSuccess("Your request was successful, my lord !");
+      } else {
+        setResult(data);
+      }
+    } else {
+      setError(
+        data.errors.map((messages) => (
+          <>
+            <br />
+            {messages}
+          </>
+        ))
+      );
+    }
   };
   return (
     <AppContext.Provider
@@ -59,6 +106,10 @@ export const AppContextProvider = (props) => {
         setResult,
         user,
         setUser,
+        error,
+        setError,
+        success,
+        setSuccess,
         loaded,
         setLoaded,
         getDataAPI,

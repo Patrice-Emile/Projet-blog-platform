@@ -1,9 +1,14 @@
 // TODO FOUND EMOJI
 const errorMessages = {
   // authentication
-  invalidLogin: "Invalid login.",
+  invalidLogin: "Invalid login or password",
   emailInUse: "Email in use.",
+  wrongToken: "Invalid token",
+  invalidConfirmPassword:
+    "Your password and your confirm password aren't the same",
   cannotAllow: "You are not allowed to do this",
+  suspendAccount: "You are not allowed sign in for this account",
+  anomaly: "Anomaly occured",
   // Users
   noUsers: "No users available 😞",
   userNotFound: "User not found 😞",

@@ -8,12 +8,17 @@ const auth = async (req, res, next) => {
   const {
     headers: { authentication },
   } = req;
+
   try {
+    console.log("authentication : ", authentication);
+    // console.log("req.params : ", req.params);
+    // console.log("req.body : ", req.body);
     const {
       payload: {
         user: { id, email, name },
       },
     } = jsonwebtoken.verify(authentication, process.env.JWT_SECRET);
+    // console.log("id : ", id, "\nemail : ", email, "\nname : ", name);
 
     const user = await UsersModel.query()
       .select("users.id", "r.name as role", "users.name", "email", "active")
@@ -22,24 +27,25 @@ const auth = async (req, res, next) => {
       .findOne({ email, "users.name": name, "users.id": id });
 
     if (!user.active) {
-      const error = new Error(errorMessages.enableConnection);
-      res.status(403);
-      throw error;
+      res.send({ errors: [errorMessages.enableConnection] });
+      return;
     }
 
     // console.log("path", req.route.path);
-    // console.log("methods", req.method);
     req.user = user;
 
     next();
   } catch (err) {
     if (err instanceof JsonWebTokenError) {
-      res.status(401).send({ error: "Mauvais token" });
+      res.status(401).send({ errors: [errorMessages.wrongToken] });
       return;
     }
 
-    res.status(500).send({
-      error: "Je ne sais pas non plus ce qu'il c'est passé mon reuf !",
+    res.send({
+      errors: [
+        errorMessages.anomaly,
+        "Je ne sais pas non plus ce qu'il c'est passé chef !",
+      ],
     });
   }
 };
